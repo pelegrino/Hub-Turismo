@@ -15,12 +15,6 @@ pub fn run() {
 
             app.manage(crate::database::DbState(pool.clone()));
 
-            // Seed database with sample data if empty
-            tauri::async_runtime::block_on(async {
-                crate::database::migrations::seed_database(&pool).await
-            })
-            .expect("Failed to seed database");
-
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![

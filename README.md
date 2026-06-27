@@ -121,7 +121,6 @@ HubTurismo/
 
 - **SQLite** local, sem necessidade de servidor
 - Banco criado automaticamente em: `~/.local/share/com.hubturismo.app/hubturismo.db`
-- 21 empresas de exemplo incluídas no primeiro uso
 - Backup/restore via arquivo JSON portável
 
 ### Comandos disponíveis
