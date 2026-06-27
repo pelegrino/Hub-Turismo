@@ -59,5 +59,42 @@ pub async fn run_migrations(pool: &SqlitePool) -> Result<(), sqlx::Error> {
     .execute(pool)
     .await?;
 
+    // Create categorias table
+    sqlx::query(
+        r#"
+        CREATE TABLE IF NOT EXISTS categorias (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nome TEXT NOT NULL UNIQUE,
+            icone TEXT NOT NULL DEFAULT 'Tag',
+            cor TEXT NOT NULL DEFAULT 'gray'
+        )
+        "#,
+    )
+    .execute(pool)
+    .await?;
+
+    // Seed default categories if table is empty
+    let cat_count: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM categorias")
+        .fetch_one(pool)
+        .await?;
+
+    if cat_count == 0 {
+        sqlx::query(
+            r#"
+            INSERT INTO categorias (nome, icone, cor) VALUES
+            ('Hotel', 'Building2', 'blue'),
+            ('Pousada', 'Home', 'green'),
+            ('Resort', 'Sun', 'purple'),
+            ('Operadora', 'Plane', 'orange'),
+            ('Receptivo', 'MapPin', 'teal'),
+            ('Seguro', 'Shield', 'red'),
+            ('Rede de Hotéis', 'Building2', 'indigo'),
+            ('Parque Aquatico', 'Waves', 'cyan')
+            "#,
+        )
+        .execute(pool)
+        .await?;
+    }
+
     Ok(())
 }

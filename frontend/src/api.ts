@@ -5,6 +5,7 @@ import type {
   AtualizaEmpresa,
   EmpresaFiltro,
   EmpresasPaginadas,
+  Categoria,
 } from "./types";
 
 export const api = {
@@ -53,5 +54,31 @@ export const api = {
 
   async importarBackup(caminho: string): Promise<string> {
     return await invoke("importar_backup", { caminho });
+  },
+
+  // Categorias
+  async listarCategorias(): Promise<Categoria[]> {
+    return await invoke("listar_categorias");
+  },
+
+  async criarCategoria(
+    nome: string,
+    icone: string,
+    cor: string,
+  ): Promise<Categoria> {
+    return await invoke("criar_categoria", { nome, icone, cor });
+  },
+
+  async atualizarCategoria(
+    id: number,
+    nome: string,
+    icone: string,
+    cor: string,
+  ): Promise<Categoria> {
+    return await invoke("atualizar_categoria", { id, nome, icone, cor });
+  },
+
+  async deletarCategoria(id: number): Promise<boolean> {
+    return await invoke("deletar_categoria", { id });
   },
 };

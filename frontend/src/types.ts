@@ -60,3 +60,10 @@ export interface EmpresasPaginadas {
   por_pagina: number;
   total_paginas: number;
 }
+
+export interface Categoria {
+  id: number;
+  nome: string;
+  icone: string;
+  cor: string;
+}

@@ -27,6 +27,10 @@ pub fn run() {
             crate::commands::empresas::listar_estados,
             crate::commands::empresas::listar_eventos,
             crate::commands::empresas::listar_tags,
+            crate::commands::categorias::listar_categorias,
+            crate::commands::categorias::criar_categoria,
+            crate::commands::categorias::atualizar_categoria,
+            crate::commands::categorias::deletar_categoria,
             crate::commands::backup::exportar_backup,
             crate::commands::backup::importar_backup,
         ])

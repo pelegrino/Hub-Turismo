@@ -1,10 +1,12 @@
 import { useState, useEffect, useCallback } from "react";
 import { api } from "../api";
-import type { Empresa, EmpresaFiltro } from "../types";
+import type { Empresa, EmpresaFiltro, Categoria } from "../types";
 import { EmpresaForm } from "./EmpresaForm";
 import { BackupRestore } from "./BackupRestore";
+import { CategoriaManager } from "./CategoriaManager";
 import {
   getCategoriaInfo,
+  getCategoriaIcon,
   formatPhone,
   getInitials,
   getAvatarColor,
@@ -18,45 +20,15 @@ import {
   MapPin,
   Globe,
   Calendar,
-  Building2,
-  Home,
-  Sun,
-  Plane,
-  Shield,
-  Waves,
-  Tag,
   Users,
   ChevronLeft,
   ChevronRight,
   X,
   Trash2,
   Inbox,
+  Settings2,
+  Tag,
 } from "lucide-react";
-
-const CATEGORIAS = [
-  "Hotel",
-  "Pousada",
-  "Resort",
-  "Operadora",
-  "Receptivo",
-  "Seguro",
-  "Rede de Hotéis",
-  "Parque Aquatico",
-];
-
-function getCategoriaIcon(tags?: string | null) {
-  if (!tags) return Tag;
-  const t = tags.toLowerCase();
-  if (t.includes("hotel")) return Building2;
-  if (t.includes("pousada")) return Home;
-  if (t.includes("resort")) return Sun;
-  if (t.includes("operadora")) return Plane;
-  if (t.includes("receptivo")) return MapPin;
-  if (t.includes("seguro")) return Shield;
-  if (t.includes("rede")) return Building2;
-  if (t.includes("parque")) return Waves;
-  return Tag;
-}
 
 export function EmpresaDashboard() {
   const [empresas, setEmpresas] = useState<Empresa[]>([]);
@@ -76,11 +48,13 @@ export function EmpresaDashboard() {
   const [estados, setEstados] = useState<string[]>([]);
   const [eventos, setEventos] = useState<string[]>([]);
   const [tagsList, setTagsList] = useState<string[]>([]);
+  const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editingEmpresa, setEditingEmpresa] = useState<Empresa | null>(null);
   const [filtroCategoria, setFiltroCategoria] = useState("");
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [deletingLoading, setDeletingLoading] = useState(false);
+  const [showCatManager, setShowCatManager] = useState(false);
 
   const carregarDados = useCallback(async () => {
     setLoading(true);
@@ -93,16 +67,18 @@ export function EmpresaDashboard() {
         pagina: result.pagina,
         por_pagina: result.por_pagina,
       });
-      const [c, e, ev, t] = await Promise.all([
+      const [c, e, ev, t, cats] = await Promise.all([
         api.listarCidades(),
         api.listarEstados(),
         api.listarEventos(),
         api.listarTags(),
+        api.listarCategorias(),
       ]);
       setCidades(c);
       setEstados(e);
       setEventos(ev);
       setTagsList(t);
+      setCategorias(cats);
     } catch (err) {
       console.error(err);
     } finally {
@@ -171,8 +147,15 @@ export function EmpresaDashboard() {
             <p>Agenda de Contatos</p>
           </div>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <div className="dash-header-actions">
           <BackupRestore onSuccess={carregarDados} />
+          <button
+            className="btn-header-icon"
+            onClick={() => setShowCatManager(true)}
+            title="Gerenciar Categorias"
+          >
+            <Settings2 size={18} />
+          </button>
           <button
             className="btn-primary"
             onClick={() => {
@@ -206,17 +189,23 @@ export function EmpresaDashboard() {
             <Tag size={14} />
             Todas
           </button>
-          {CATEGORIAS.map((cat) => (
-            <button
-              key={cat}
-              className={`chip ${filtroCategoria === cat ? "active" : ""}`}
-              onClick={() =>
-                setFiltroCategoria(filtroCategoria === cat ? "" : cat)
-              }
-            >
-              {cat}
-            </button>
-          ))}
+          {categorias.map((cat) => {
+            const CategoriaIcon = getCategoriaIcon(cat.nome, categorias);
+            return (
+              <button
+                key={cat.id}
+                className={`chip ${filtroCategoria === cat.nome ? "active" : ""}`}
+                onClick={() =>
+                  setFiltroCategoria(
+                    filtroCategoria === cat.nome ? "" : cat.nome,
+                  )
+                }
+              >
+                <CategoriaIcon size={14} />
+                {cat.nome}
+              </button>
+            );
+          })}
         </div>
 
         <div className="filter-row">
@@ -297,7 +286,7 @@ export function EmpresaDashboard() {
           </div>
           <div className="stat-info">
             <span className="stat-num">{tagsList.length}</span>
-            <span className="stat-label">Categorias</span>
+            <span className="stat-label">Tags</span>
           </div>
         </div>
       </div>
@@ -323,10 +312,10 @@ export function EmpresaDashboard() {
           <>
             <div className="cards-grid">
               {filteredEmpresas.map((emp) => {
-                const cat = getCategoriaInfo(emp.tags);
+                const cat = getCategoriaInfo(emp.tags, categorias);
                 const initials = getInitials(emp.representante);
                 const avatarColor = getAvatarColor(emp.empresa);
-                const CategoriaIcon = getCategoriaIcon(emp.tags);
+                const CategoriaIcon = getCategoriaIcon(emp.tags, categorias);
                 const telefone = emp.telefone;
                 const email = emp.email;
                 const site = emp.site;
@@ -539,6 +528,14 @@ export function EmpresaDashboard() {
             setEditingEmpresa(null);
             carregarDados();
           }}
+        />
+      )}
+
+      {/* Category Manager Modal */}
+      {showCatManager && (
+        <CategoriaManager
+          onClose={() => setShowCatManager(false)}
+          onSuccess={carregarDados}
         />
       )}
     </div>
