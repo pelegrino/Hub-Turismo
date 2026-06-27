@@ -423,8 +423,11 @@ export function EmpresaDashboard() {
                         <div className="card-contato">
                           {emp.telefone && (
                             <a
-                              href={`tel:${emp.telefone}`}
+                              href={`https://wa.me/55${emp.telefone.replace(/\D/g, "")}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
                               className="contato-item"
+                              title="Abrir WhatsApp Web"
                               onClick={(e) => e.stopPropagation()}
                             >
                               <Phone size={15} />
