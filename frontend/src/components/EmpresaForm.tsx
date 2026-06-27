@@ -189,7 +189,7 @@ export function EmpresaForm({ empresa, onClose, onSuccess }: EmpresaFormProps) {
                 <input
                   id="site"
                   name="site"
-                  type="url"
+                  type="text"
                   value={(formData as any).site || ""}
                   onChange={handleChange}
                   placeholder="meusite.com.br"
