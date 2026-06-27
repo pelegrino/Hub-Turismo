@@ -9,6 +9,7 @@ import {
   getInitials,
   getAvatarColor,
 } from "../utils/helpers";
+import { openUrl } from "@tauri-apps/plugin-opener";
 import {
   Search,
   Plus,
@@ -391,16 +392,16 @@ export function EmpresaDashboard() {
                         <div className="card-empresa">
                           <h3>{emp.empresa}</h3>
                           {emp.site && (
-                            <a
-                              href={`https://${emp.site}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="card-site"
-                              onClick={(e) => e.stopPropagation()}
+                            <span
+                              className="card-site clickable"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                openUrl(`https://${emp.site}`);
+                              }}
                             >
                               <Globe size={12} />
                               {emp.site}
-                            </a>
+                            </span>
                           )}
                         </div>
 
@@ -422,27 +423,31 @@ export function EmpresaDashboard() {
                         {/* Contact */}
                         <div className="card-contato">
                           {emp.telefone && (
-                            <a
-                              href={`https://wa.me/55${emp.telefone.replace(/\D/g, "")}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="contato-item"
+                            <span
+                              className="contato-item clickable"
                               title="Abrir WhatsApp Web"
-                              onClick={(e) => e.stopPropagation()}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                openUrl(
+                                  `https://wa.me/55${emp.telefone.replace(/\D/g, "")}`,
+                                );
+                              }}
                             >
                               <Phone size={15} />
                               {formatPhone(emp.telefone)}
-                            </a>
+                            </span>
                           )}
                           {emp.email && (
-                            <a
-                              href={`mailto:${emp.email}`}
-                              className="contato-item"
-                              onClick={(e) => e.stopPropagation()}
+                            <span
+                              className="contato-item clickable"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                openUrl(`mailto:${emp.email}`);
+                              }}
                             >
                               <Mail size={15} />
                               {emp.email}
-                            </a>
+                            </span>
                           )}
                         </div>
 

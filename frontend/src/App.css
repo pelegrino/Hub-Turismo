@@ -630,6 +630,10 @@
     font-weight: 400;
 }
 
+.clickable {
+    cursor: pointer;
+}
+
 /* Card contact info */
 .card-contato {
     display: flex;
