@@ -327,6 +327,9 @@ export function EmpresaDashboard() {
                 const initials = getInitials(emp.representante);
                 const avatarColor = getAvatarColor(emp.empresa);
                 const CategoriaIcon = getCategoriaIcon(emp.tags);
+                const telefone = emp.telefone;
+                const email = emp.email;
+                const site = emp.site;
 
                 return (
                   <div
@@ -391,16 +394,16 @@ export function EmpresaDashboard() {
                         {/* Company Name */}
                         <div className="card-empresa">
                           <h3>{emp.empresa}</h3>
-                          {emp.site && (
+                          {site && (
                             <span
                               className="card-site clickable"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                openUrl(`https://${emp.site}`);
+                                openUrl(`https://${site}`);
                               }}
                             >
                               <Globe size={12} />
-                              {emp.site}
+                              {site}
                             </span>
                           )}
                         </div>
@@ -422,31 +425,31 @@ export function EmpresaDashboard() {
 
                         {/* Contact */}
                         <div className="card-contato">
-                          {emp.telefone && (
+                          {telefone && (
                             <span
                               className="contato-item clickable"
                               title="Abrir WhatsApp Web"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 openUrl(
-                                  `https://wa.me/55${emp.telefone.replace(/\D/g, "")}`,
+                                  `https://wa.me/55${telefone.replace(/\D/g, "")}`,
                                 );
                               }}
                             >
                               <Phone size={15} />
-                              {formatPhone(emp.telefone)}
+                              {formatPhone(telefone)}
                             </span>
                           )}
-                          {emp.email && (
+                          {email && (
                             <span
                               className="contato-item clickable"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                openUrl(`mailto:${emp.email}`);
+                                openUrl(`mailto:${email}`);
                               }}
                             >
                               <Mail size={15} />
-                              {emp.email}
+                              {email}
                             </span>
                           )}
                         </div>
