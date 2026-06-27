@@ -1,0 +1,28 @@
+# === Rust ===
+src-tauri/target/
+src-tauri/gen/
+
+# === Frontend ===
+frontend/node_modules/
+frontend/dist/
+
+# === Bundle / Build Output ===
+src-tauri/target/release/bundle/
+
+# === OS Files ===
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# === IDE ===
+.vscode/
+.idea/
+*.iml
+
+# === Env ===
+.env
+.env.local
+
+# === Logs ===
+*.log
