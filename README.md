@@ -80,7 +80,7 @@ NO_STRIP=1 cargo tauri build
 # Pacotes em: target/release/bundle/
 ```
 
-### AppImage Portátil (Arch Linux)
+### AppImage Portátil
 
 O AppImage gerado pelo Tauri empacota as bibliotecas WebKit do sistema de build,
 que podem conter instruções específicas da CPU (ex: AVX-512). Isso causa erro
@@ -96,8 +96,19 @@ chmod +x scripts/build-portable-appimage.sh
 
 O AppImage resultante estará em `src-tauri/target/release/bundle/appimage/Hub-Turismo-0.1.0-x86_64.AppImage`.
 
-> **Pré-requisitos na máquina de destino:** O sistema precisa ter `webkitgtk-6.0` e
-> `javascriptcoregtk-4.1` instalados (já presentes na maioria dos desktops Arch/GNOME).
+#### Dependências do sistema
+
+O AppImage portátil **não** empacota as bibliotecas WebKit — ele usa as do sistema.
+Instale o pacote correto para sua distribuição:
+
+| Distribuição | Pacote | Comando |
+|---|---|---|
+| **Arch Linux** | `webkit2gtk-4.1` | `sudo pacman -S webkit2gtk-4.1` |
+| **Ubuntu / Debian** | `libwebkitgtk-6.0-4` | `sudo apt install libwebkitgtk-6.0-4` |
+| **Fedora** | `webkitgtk6.0` | `sudo dnf install webkitgtk6.0` |
+
+> 💡 No Arch, o `webkit2gtk-4.1` já inclui tanto o WebKit quanto o JavaScriptCore
+> (não é necessário instalar pacotes separados).
 
 ---
 
