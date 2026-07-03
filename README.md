@@ -80,6 +80,25 @@ NO_STRIP=1 cargo tauri build
 # Pacotes em: target/release/bundle/
 ```
 
+### AppImage Portátil (Arch Linux)
+
+O AppImage gerado pelo Tauri empacota as bibliotecas WebKit do sistema de build,
+que podem conter instruções específicas da CPU (ex: AVX-512). Isso causa erro
+**SIGILL (Signal 4)** em CPUs mais antigas.
+
+Para gerar um AppImage **portátil** que usa o WebKit do sistema de destino:
+
+```bash
+cd src-tauri
+chmod +x scripts/build-portable-appimage.sh
+./scripts/build-portable-appimage.sh
+```
+
+O AppImage resultante estará em `src-tauri/target/release/bundle/appimage/Hub-Turismo-0.1.0-x86_64.AppImage`.
+
+> **Pré-requisitos na máquina de destino:** O sistema precisa ter `webkitgtk-6.0` e
+> `javascriptcoregtk-4.1` instalados (já presentes na maioria dos desktops Arch/GNOME).
+
 ---
 
 ## 📦 Estrutura do Projeto

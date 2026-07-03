@@ -10,8 +10,7 @@ url="https://github.com/pelegrino/Hub-Turismo"
 license=('MIT')
 depends=(
     'webkitgtk-6.0'
-    'libwebkitgtk-6.0-4'
-    'libjavascriptcoregtk-4.1-0'
+    'javascriptcoregtk-4.1'
     'gtk3'
     'libsoup3'
     'glib2'
