@@ -9,8 +9,7 @@ arch=('x86_64')
 url="https://github.com/pelegrino/Hub-Turismo"
 license=('MIT')
 depends=(
-    'webkitgtk-6.0'
-    'javascriptcoregtk-4.1'
+    'webkit2gtk-4.1'
     'gtk3'
     'libsoup3'
     'glib2'

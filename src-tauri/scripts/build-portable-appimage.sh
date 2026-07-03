@@ -6,14 +6,13 @@ set -e
 cd "$(dirname "$0")/.."
 PROJECT_ROOT="$(pwd)"
 APPIMAGE_DIR="$PROJECT_ROOT/target/release/bundle/appimage"
-SCRIPT_DIR="$PROJECT_ROOT/scripts"
 
 echo "=== Step 1: Build with AppImage target ==="
 
 # Temporarily enable appimage in tauri.conf.json
 sed -i 's/"deb", "rpm"/"deb", "rpm", "appimage"/' tauri.conf.json
 
-NO_STRIP=1 cargo tauri build --bundles appimage 2>&1 | tail -20
+NO_STRIP=1 cargo tauri build --bundles appimage 2>&1 | tail -10
 
 # Restore original targets
 sed -i 's/"deb", "rpm", "appimage"/"deb", "rpm"/' tauri.conf.json
@@ -33,8 +32,8 @@ if [ -d "$EXTRACT_DIR" ]; then
 fi
 
 chmod +x "$APPIMAGE"
-"$APPIMAGE" --appimage-extract > /dev/null 2>&1
 cd "$APPIMAGE_DIR"
+"./$(basename "$APPIMAGE")" --appimage-extract > /dev/null 2>&1
 
 echo ""
 echo "=== Step 3: Remove bundled WebKit (cause of SIGILL) ==="
@@ -44,18 +43,33 @@ rm -f squashfs-root/usr/lib64/libjavascriptcoregtk-4.1.so.0 2>/dev/null || true
 rm -f squashfs-root/usr/lib64/libwebkit2gtk-4.1.so.0 2>/dev/null || true
 
 echo ""
-echo "=== Step 4: Create wrapper AppRun that uses system WebKit ==="
+echo "=== Step 4: Patch AppRun to use system WebKit ==="
+# We keep the original AppRun.wrapped (which sets up LD_LIBRARY_PATH for bundled libs)
+# and just modify the AppRun script to add system paths for WebKit
 cat > squashfs-root/AppRun << 'APPRUN'
 #!/bin/bash
-# Wrapper that uses system WebKit if bundled ones are missing
-APPDIR="$(dirname "$(readlink -f "$0")")"
+set -e
 
-# If bundled WebKit is missing, use system libraries
-if [ ! -f "$APPDIR/usr/lib/libwebkit2gtk-4.1.so.0" ]; then
-    export LD_LIBRARY_PATH="/usr/lib:/usr/lib64:$LD_LIBRARY_PATH"
+this_dir="$(readlink -f "$(dirname "$0")")"
+
+# Source GTK hooks (needed for theme/icon integration)
+if [ -f "$this_dir/apprun-hooks/linuxdeploy-plugin-gtk.sh" ]; then
+    source "$this_dir/apprun-hooks/linuxdeploy-plugin-gtk.sh"
 fi
 
-exec "$APPDIR/usr/bin/app" "$@"
+# If bundled WebKit is missing, add system library paths
+# This allows the AppImage to run on any CPU generation
+# by using the system's WebKit instead of the bundled one
+if [ ! -f "$this_dir/usr/lib/libwebkit2gtk-4.1.so.0" ]; then
+    export LD_LIBRARY_PATH="/usr/lib:/usr/lib64:/lib:/lib64:$LD_LIBRARY_PATH"
+fi
+
+# Use AppRun.wrapped which sets up env for other bundled libraries (GTK, Soup, etc.)
+if [ -f "$this_dir/AppRun.wrapped" ]; then
+    exec "$this_dir/AppRun.wrapped" "$@"
+else
+    exec "$this_dir/usr/bin/app" "$@"
+fi
 APPRUN
 chmod +x squashfs-root/AppRun
 
@@ -65,7 +79,6 @@ VERSION="0.1.0"
 ARCH=x86_64
 OUTPUT="$APPIMAGE_DIR/Hub-Turismo-$VERSION-$ARCH.AppImage"
 
-# Try to use appimagetool from PATH or common locations
 APPIMAGETOOL=""
 if command -v appimagetool &>/dev/null; then
     APPIMAGETOOL="appimagetool"
@@ -79,12 +92,23 @@ fi
 
 ARCH=x86_64 "$APPIMAGETOOL" squashfs-root "$OUTPUT"
 
+# Cleanup
+rm -rf squashfs-root
+
 echo ""
 echo "=== Done! ==="
 echo "Portable AppImage: $OUTPUT"
 echo ""
-echo "NOTE: This AppImage REQUIRES webkitgtk-6.0 and javascriptcoregtk-4.1"
-echo "to be installed on the target system:"
-echo "  sudo pacman -S webkitgtk-6.0 javascriptcoregtk-4.1"
+echo "NOTE: This AppImage requires the system package 'webkit2gtk-4.1'"
+echo "to be installed on the target machine:"
+echo ""
+echo "  # Arch Linux"
+echo "  sudo pacman -S webkit2gtk-4.1"
+echo ""
+echo "  # Ubuntu/Debian"
+echo "  sudo apt install libwebkitgtk-6.0-4 libjavascriptcoregtk-4.1-0"
+echo ""
+echo "  # Fedora"
+echo "  sudo dnf install webkitgtk6.0 javascriptcoregtk4.1"
 echo ""
 echo "It will NOT bundle WebKit, so it works on ANY CPU generation."
