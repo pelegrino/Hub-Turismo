@@ -9,6 +9,11 @@ frontend/dist/
 # === Bundle / Build Output ===
 src-tauri/target/release/bundle/
 
+# === Extracted AppImage (not for git) ===
+src-tauri/squashfs-root/
+*.AppImage
+*.AppImage.tar.gz
+
 # === OS Files ===
 .DS_Store
 Thumbs.db
